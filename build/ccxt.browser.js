@@ -45,7 +45,7 @@ const Exchange  = require ('./js/base/Exchange')
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
 
-const version = '1.18.106'
+const version = '1.18.107'
 
 Exchange.ccxtVersion = version
 
@@ -7807,14 +7807,16 @@ module.exports = class bitbank extends Exchange {
         let price = this.safeFloat (trade, 'price');
         let amount = this.safeFloat (trade, 'amount');
         let symbol = market['symbol'];
-        let cost = this.costToPrecision (symbol, price * amount);
+        let cost = parseFloat (this.costToPrecision (symbol, price * amount));
         let id = this.safeString (trade, 'transaction_id');
+        let takerOrMaker = this.safeString (trade, 'maker_taker');
         if (!id) {
             id = this.safeString (trade, 'trade_id');
         }
         let fee = undefined;
         if ('fee_amount_quote' in trade) {
             fee = {
+                'type': takerOrMaker,
                 'currency': market['quote'],
                 'cost': this.safeFloat (trade, 'fee_amount_quote'),
             };
@@ -7832,6 +7834,7 @@ module.exports = class bitbank extends Exchange {
             'cost': cost,
             'fee': fee,
             'info': trade,
+            'takerOrMaker': takerOrMaker,
         };
     }
 

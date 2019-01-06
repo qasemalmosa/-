@@ -176,13 +176,15 @@ class bitbank (Exchange):
         price = self.safe_float(trade, 'price')
         amount = self.safe_float(trade, 'amount')
         symbol = market['symbol']
-        cost = self.cost_to_precision(symbol, price * amount)
+        cost = float(self.cost_to_precision(symbol, price * amount))
         id = self.safe_string(trade, 'transaction_id')
+        takerOrMaker = self.safe_string(trade, 'maker_taker')
         if not id:
             id = self.safe_string(trade, 'trade_id')
         fee = None
         if 'fee_amount_quote' in trade:
             fee = {
+                'type': takerOrMaker,
                 'currency': market['quote'],
                 'cost': self.safe_float(trade, 'fee_amount_quote'),
             }
@@ -199,6 +201,7 @@ class bitbank (Exchange):
             'cost': cost,
             'fee': fee,
             'info': trade,
+            'takerOrMaker': takerOrMaker,
         }
 
     async def fetch_trades(self, symbol, since=None, limit=None, params={}):

@@ -174,14 +174,16 @@ class bitbank extends Exchange {
         $price = $this->safe_float($trade, 'price');
         $amount = $this->safe_float($trade, 'amount');
         $symbol = $market['symbol'];
-        $cost = $this->cost_to_precision($symbol, $price * $amount);
+        $cost = floatval ($this->cost_to_precision($symbol, $price * $amount));
         $id = $this->safe_string($trade, 'transaction_id');
+        $takerOrMaker = $this->safe_string($trade, 'maker_taker');
         if (!$id) {
             $id = $this->safe_string($trade, 'trade_id');
         }
         $fee = null;
         if (is_array ($trade) && array_key_exists ('fee_amount_quote', $trade)) {
             $fee = array (
+                'type' => $takerOrMaker,
                 'currency' => $market['quote'],
                 'cost' => $this->safe_float($trade, 'fee_amount_quote'),
             );
@@ -199,6 +201,7 @@ class bitbank extends Exchange {
             'cost' => $cost,
             'fee' => $fee,
             'info' => $trade,
+            'takerOrMaker' => $takerOrMaker,
         );
     }
 
